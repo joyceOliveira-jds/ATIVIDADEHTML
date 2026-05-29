@@ -1,0 +1,135 @@
+---
+title: "Mapa do Brasil por UF - População Estimada
+(Fonte: IBGE/SIDRA - Tabela 6579)"
+author: "Joyce dos Santos Oliveira"
+format: html
+editor: visual
+warning: false
+message: false
+---
+
+## População residente
+
+O intuito deste blog é analisar a população residente estimada do Brasil por Unidade da Federação no ano de 2024.
+
+-   CARREGAMENTO DOS PACOTES
+
+```{r preparado os dados}
+#| echo: true
+library(sidrar)
+library(geobr)
+library(sf)
+library(dplyr)
+library(ggplot2)
+library(rsconnect)
+library(shiny)
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+
+```
+
+```{r}
+#| eval: false
+#| include: false
+ 
+```
+
+-   COLETA DE DADOS
+
+Para isso, os dados foram obtidos do IBGE por meio do pacote ***sidrar***, utilizando a **Tabela 6579** e a **variável 9324**, que traz as estimativas populacionais oficiais para os 27 estados.
+
+```{r baixando os dados do SIDRA}
+#| echo: true
+dados_pop <- get_sidra(x = 6579, variable = 9324, period = "2024", geo = "State") 
+```
+
+-   TRATAMENTO DOS DADOS
+
+```{r tratando os dados}
+#| echo: true
+dados_pop_limpo <- dados_pop %>%
+  select(nome_uf    = `Unidade da Federação`,
+    code_state = `Unidade da Federação (Código)`,
+    populacao  = Valor) %>%
+  mutate(code_state = as.numeric(code_state))
+
+```
+
+```{r organizando os dados}
+#| include: false
+rownames(dados_pop_limpo) <- NULL
+print(dados_pop_limpo)
+```
+
+-   LEITURA DO MAPA E JUNÇÃO
+
+```{r ler o mapa do Brasil por UF}
+#| echo: true
+mapa_ufs <- read_state(year = 2020, showProgress = FALSE)
+```
+
+```{r juntando os dados com o mapa}
+#| echo: true
+mapa_final <- left_join(mapa_ufs, dados_pop_limpo, by = "code_state")
+```
+
+-   MAPA
+
+```{r gerando um mapa}
+#| echo: true
+ggplot(mapa_final) +
+  geom_sf(aes(fill = populacao)) +
+  scale_fill_viridis_c(name   = "População\nestimada",
+  labels = scales::comma_format(big.mark = ".", decimal.mark = ",")
+  ) +
+  labs(title    = "População Residente Estimada por Unidade da Federação",
+    subtitle = "Brasil, 2024") +
+  theme_minimal() +
+  theme(plot.title    = element_text(face = "bold", size = 13),
+    plot.subtitle = element_text(size = 10),
+    legend.position = "right")
+```
+
+-   GRÁFICO DE BARRAS
+
+```{r}
+#| echo: true
+dados_pop_limpo |>
+  mutate(nome_uf = reorder(nome_uf, populacao)) |>
+  ggplot(aes(x = nome_uf, y = populacao, fill = populacao)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_viridis_c() +
+  scale_y_continuous(
+    labels = scales::label_number(big.mark = ".", decimal.mark = ",")
+  ) +
+  coord_flip() +
+  labs(
+    title   = "População Estimada por UF — Brasil (2024)",
+    x       = NULL,
+    y       = "População",
+    caption = "Fonte: IBGE/SIDRA, Tabela 6579"
+  ) +
+  theme_minimal(base_size = 11)
+```
+
+```{r}
+#| eval: false
+#| include: false
+    
+```
+
+```{r}
+#| eval: false
+#| include: false
+
+```
+
+```{undefined}
+#| eval: false
+#| include: false
+  
+```
