@@ -4,7 +4,6 @@ title: "Mapa do Brasil por UF - População Estimada
 author: "Joyce dos Santos Oliveira"
 format: html
 editor: visual
-self-contained: true
 warning: false
 message: false
 ---
@@ -22,14 +21,14 @@ library(geobr)
 library(sf)
 library(dplyr)
 library(ggplot2)
-
+library(rsconnect)
+library(shiny)
 ```
 
 ```{r}
 #| eval: false
 #| include: false
-library(rsconnect)
-library(shiny)
+
 
 ```
 
@@ -126,13 +125,11 @@ dados_pop_limpo |>
 ```{r}
 #| eval: false
 #| include: false
-#|
 
 ```
 
 ```{undefined}
 #| eval: false
 #| include: false
-  
   
 ```
